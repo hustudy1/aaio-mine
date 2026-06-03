@@ -1,0 +1,39 @@
+# OO Starter — .gitignore
+
+# 로컬 런타임 큐 (Agent 간 파일 교환, 동기화 불필요)
+shared_data/inbox/
+shared_data/outbox/
+shared_data/archive/
+
+# Python 환경
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 임시 파일
+tmp/
+*.tmp
+*.bak
+*.log
+
+# 에디터/OS
+.DS_Store
+desktop.ini
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# 민감 정보
+.env
+.env.*
+!.env.example
+secrets/
+*.credentials.json
+*.cookies.json
+token.json
+*_token.json
+*.pem
+*.key
