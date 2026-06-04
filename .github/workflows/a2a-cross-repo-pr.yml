@@ -9,57 +9,202 @@ on:
 jobs:
   cross-repo-pr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-      - name: Detect new outbox files
-        id: changes
-        run: |
-          git diff --name-only HEAD~1..HEAD -- shared_data/outbox/ > /tmp/changed.txt
-          echo "changed_files=$(cat /tmp/changed.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
-          cat /tmp/changed.txt
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-      - name: Skip if peers.yaml missing
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pyyaml
+
+      - name: Check peers.yaml exists
+        id: peers-check
         run: |
           if [ ! -f config/peers.yaml ]; then
             echo "::warning::config/peers.yaml not found, skipping cross-repo PR"
-            exit 0
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Validate JSON schema
+      - name: Detect new outbox files
+        id: detect
+        if: steps.peers-check.outputs.skip != 'true'
         run: |
-          python -m pip install --upgrade pip jsonschema pyyaml
-          python -c "
-          import json, sys
-          from pathlib import Path
-          schema = json.loads(Path('schemas/task-v1.json').read_text(encoding='utf-8'))
-          for line in open('/tmp/changed.txt'):
-              p = Path(line.strip())
-              if not p.exists() or not p.suffix == '.json':
-                  continue
-              try:
-                  data = json.loads(p.read_text(encoding='utf-8'))
-                  # 기본 required 필드 존재 확인 (jsonschema 정식 검증은 추후 보강)
-                  for f in schema['required']:
-                      assert f in data, f'{p}: required field {f} missing'
-                  print(f'OK {p}')
-              except Exception as e:
-                  print(f'FAIL {p}: {e}')
-                  sys.exit(1)
-          "
+          git diff --name-only --diff-filter=A HEAD~1..HEAD -- shared_data/outbox/ > /tmp/added.txt
+          if [ ! -s /tmp/added.txt ]; then
+            echo "::notice::No new outbox files, skipping"
+            echo "has_files=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_files=true" >> $GITHUB_OUTPUT
+            cat /tmp/added.txt
+          fi
 
-      - name: Create PR to target peer repo
+      - name: Validate JSON schema + extract dispatch metadata
+        id: validate
+        if: steps.detect.outputs.has_files == 'true'
+        run: |
+          python <<'PYEOF'
+          import json
+          import sys
+          from pathlib import Path
+          import yaml
+
+          schema_task = json.loads(Path("schemas/task-v1.json").read_text(encoding="utf-8"))
+          schema_feedback = json.loads(Path("schemas/feedback-v1.json").read_text(encoding="utf-8"))
+          peers = yaml.safe_load(Path("config/peers.yaml").read_text(encoding="utf-8"))
+          peer_by_name = {p["name"]: p for p in peers.get("peers", [])}
+
+          added = [line.strip() for line in open("/tmp/added.txt") if line.strip()]
+          dispatched = []
+
+          for path_str in added:
+              p = Path(path_str)
+              if not p.exists() or p.suffix != ".json":
+                  continue
+
+              parts = p.parts
+              if len(parts) < 4 or parts[0] != "shared_data" or parts[1] != "outbox":
+                  print(f"::warning::Unexpected path structure: {path_str}, skip")
+                  continue
+              peer_name = parts[2]
+              subdir = parts[3]
+
+              if peer_name not in peer_by_name:
+                  print(f"::error::Unknown peer '{peer_name}' in {path_str}")
+                  sys.exit(1)
+
+              try:
+                  data = json.loads(p.read_text(encoding="utf-8"))
+              except json.JSONDecodeError as e:
+                  print(f"::error::Invalid JSON in {path_str}: {e}")
+                  sys.exit(1)
+
+              expected = schema_task if subdir == "tasks" else schema_feedback
+              for required in expected.get("required", []):
+                  if required not in data:
+                      print(f"::error::Required field '{required}' missing in {path_str}")
+                      sys.exit(1)
+
+              chain = data.get("dispatch_chain", [])
+              if peer_name in chain:
+                  print(f"::error::Loop detected — {peer_name} already in dispatch_chain for {path_str}")
+                  sys.exit(1)
+
+              sender_name = data.get("from", "unknown")
+              if subdir == "feedback":
+                  inbox_path = peer_by_name[peer_name].get(
+                      "feedback_inbox_path",
+                      f"shared_data/inbox/openorchestrator/feedback",
+                  )
+              else:
+                  inbox_path = f"shared_data/inbox/{sender_name}/tasks"
+
+              dispatched.append({
+                  "path": path_str,
+                  "peer": peer_name,
+                  "subdir": subdir,
+                  "target_repo": peer_by_name[peer_name]["github_repo"],
+                  "inbox_path": inbox_path,
+                  "intent": data.get("intent", "(no intent)"),
+                  "task_id": data.get("task_id") or data.get("feedback_id", "unknown"),
+              })
+
+          Path("/tmp/dispatched.json").write_text(
+              json.dumps(dispatched, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+          print(f"Dispatched: {len(dispatched)} items")
+          PYEOF
+
+      - name: Create PR to target peer repos
+        if: steps.detect.outputs.has_files == 'true'
         env:
           A2A_TOKEN: ${{ secrets.A2A_CROSS_REPO_TOKEN }}
         run: |
-          # TODO: implement cross-repo PR creation
-          # 1) parse peer name from path (shared_data/outbox/<peer>/...)
-          # 2) read peers.yaml for github_repo + inbox_path
-          # 3) gh api or git push to target peer repo with PAT
-          # 4) gh pr create with intent field as title
-          echo "::notice::Cross-repo PR step is placeholder — implement before production use"
+          if [ -z "$A2A_TOKEN" ]; then
+            echo "::warning::A2A_CROSS_REPO_TOKEN secret not set, skipping PR creation"
+            exit 0
+          fi
+
+          python <<'PYEOF'
+          import json
+          import os
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          dispatched = json.loads(Path("/tmp/dispatched.json").read_text(encoding="utf-8"))
+          token = os.environ["A2A_TOKEN"]
+          if not dispatched:
+              print("Nothing to dispatch")
+              sys.exit(0)
+
+          for item in dispatched:
+              repo = item["target_repo"]
+              for prefix in ("https://", "http://", "github.com/"):
+                  if repo.startswith(prefix):
+                      repo = repo[len(prefix):]
+              owner, name = repo.split("/", 1)
+              branch = f"a2a/{item['task_id']}"
+              target_path = f"{item['inbox_path']}/{Path(item['path']).name}"
+              file_content = Path(item['path']).read_text(encoding='utf-8')
+
+              clone_dir = Path(f"/tmp/clone-{item['peer']}-{item['task_id']}")
+              if clone_dir.exists():
+                  subprocess.run(["rm", "-rf", str(clone_dir)], check=True)
+              subprocess.run([
+                  "git", "clone", "--depth", "1",
+                  f"https://x-access-token:{token}@github.com/{owner}/{name}.git",
+                  str(clone_dir),
+              ], check=True)
+
+              subprocess.run(["git", "-C", str(clone_dir), "checkout", "-b", branch], check=True)
+
+              target_full = clone_dir / target_path
+              target_full.parent.mkdir(parents=True, exist_ok=True)
+              target_full.write_text(file_content, encoding="utf-8")
+
+              subprocess.run(["git", "-C", str(clone_dir), "add", target_path], check=True)
+              subprocess.run([
+                  "git", "-C", str(clone_dir),
+                  "-c", "user.email=a2a-bot@noreply.invalid",
+                  "-c", "user.name=A2A Bot",
+                  "commit", "-m",
+                  f"A2A 전달: {item['intent'][:80]}",
+              ], check=True)
+              subprocess.run([
+                  "git", "-C", str(clone_dir), "push", "origin", branch,
+              ], check=True)
+
+              env = {**os.environ, "GH_TOKEN": token}
+              pr_title = f"A2A: {item['intent'][:80]}"
+              pr_body = (
+                  f"본 PR 은 A2A 통신 골격에 의해 자동 생성됨.\n\n"
+                  f"- task_id: {item['task_id']}\n"
+                  f"- 보내는 peer: {item['peer']}\n"
+                  f"- intent: {item['intent']}\n"
+                  f"- target path: `{target_path}`\n\n"
+                  f"머지 결정은 receiver 가 합니다."
+              )
+              subprocess.run([
+                  "gh", "pr", "create",
+                  "--repo", f"{owner}/{name}",
+                  "--head", branch,
+                  "--title", pr_title,
+                  "--body", pr_body,
+              ], env=env, check=True)
+              print(f"PR created: {owner}/{name} (branch: {branch})")
+          PYEOF
 
       - name: Notify on failure
         if: failure()
-        run: echo "::error::A2A cross-repo PR failed, check logs"
+        run: echo "::error::A2A cross-repo PR failed — check logs"
