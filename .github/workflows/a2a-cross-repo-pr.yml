@@ -1,0 +1,65 @@
+name: A2A Cross-Repo PR
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "shared_data/outbox/**"
+
+jobs:
+  cross-repo-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect new outbox files
+        id: changes
+        run: |
+          git diff --name-only HEAD~1..HEAD -- shared_data/outbox/ > /tmp/changed.txt
+          echo "changed_files=$(cat /tmp/changed.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          cat /tmp/changed.txt
+
+      - name: Skip if peers.yaml missing
+        run: |
+          if [ ! -f config/peers.yaml ]; then
+            echo "::warning::config/peers.yaml not found, skipping cross-repo PR"
+            exit 0
+          fi
+
+      - name: Validate JSON schema
+        run: |
+          python -m pip install --upgrade pip jsonschema pyyaml
+          python -c "
+          import json, sys
+          from pathlib import Path
+          schema = json.loads(Path('schemas/task-v1.json').read_text(encoding='utf-8'))
+          for line in open('/tmp/changed.txt'):
+              p = Path(line.strip())
+              if not p.exists() or not p.suffix == '.json':
+                  continue
+              try:
+                  data = json.loads(p.read_text(encoding='utf-8'))
+                  # 기본 required 필드 존재 확인 (jsonschema 정식 검증은 추후 보강)
+                  for f in schema['required']:
+                      assert f in data, f'{p}: required field {f} missing'
+                  print(f'OK {p}')
+              except Exception as e:
+                  print(f'FAIL {p}: {e}')
+                  sys.exit(1)
+          "
+
+      - name: Create PR to target peer repo
+        env:
+          A2A_TOKEN: ${{ secrets.A2A_CROSS_REPO_TOKEN }}
+        run: |
+          # TODO: implement cross-repo PR creation
+          # 1) parse peer name from path (shared_data/outbox/<peer>/...)
+          # 2) read peers.yaml for github_repo + inbox_path
+          # 3) gh api or git push to target peer repo with PAT
+          # 4) gh pr create with intent field as title
+          echo "::notice::Cross-repo PR step is placeholder — implement before production use"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "::error::A2A cross-repo PR failed, check logs"

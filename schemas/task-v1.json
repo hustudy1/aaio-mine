@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openorchestrator-starter/schemas/task-v1.json",
+  "title": "A2A Task v1",
+  "description": "peer 간 task JSON 전달 schema. file-first transport (GitHub PR cross-create) 정합.",
+  "type": "object",
+  "required": ["schema_version", "task_id", "from", "to", "ts", "intent", "payload"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "task_id": {"type": "string", "minLength": 1, "description": "UUID 또는 datetime 기반 고유 식별자"},
+    "from": {"type": "string", "description": "sender peer name (peers.yaml 등록 필수)"},
+    "to": {"type": "string", "description": "receiver peer name"},
+    "ts": {"type": "string", "format": "date-time"},
+    "intent": {"type": "string", "minLength": 1, "description": "사람말 1~2줄 한국어 — 받는 쪽 사람이 즉시 이해 가능"},
+    "payload": {"type": "object", "description": "Agent 가 처리할 구조화 데이터"},
+    "parent_task_id": {"type": ["string", "null"], "description": "chain task 의 부모 task_id (idempotency 확보)"},
+    "dispatch_chain": {"type": "array", "items": {"type": "string"}, "description": "loop guard — 자기 자신 등장 시 reject"},
+    "deadline": {"type": ["string", "null"], "format": "date-time"},
+    "priority": {"enum": ["low", "normal", "high", "urgent"]},
+    "approval_class": {"enum": ["auto", "human_required", "agent_review"]},
+    "reply_policy": {"enum": ["direct", "relay"]}
+  }
+}

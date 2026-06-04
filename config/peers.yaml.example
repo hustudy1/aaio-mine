@@ -1,0 +1,28 @@
+# A2A Peer Registry — peers.yaml.example
+# 본 파일을 peers.yaml 로 복사 후 본인 peer 정보 입력.
+# peers.yaml 자체는 gitignore (peer credential · repo 정보 외부 노출 방지).
+
+peers:
+  - name: self
+    role: self
+    github_repo: github.com/<your-handle>/openorchestrator-starter-fork
+    schema_version: "1.0"
+
+  - name: peer-A
+    role: peer
+    direction: bidirectional
+    github_repo: github.com/<peer-A-handle>/openorchestrator-starter-fork
+    schema_version: "1.0"
+
+  - name: peer-B
+    role: peer
+    direction: bidirectional
+    github_repo: github.com/<peer-B-handle>/openorchestrator-starter-fork
+    schema_version: "1.0"
+
+  - name: openorchestrator-upstream
+    role: upstream
+    direction: feedback-only
+    github_repo: github.com/edolramba/OpenOrchestrator
+    schema_version: "1.0"
+    feedback_inbox_path: shared_data/inbox/openorchestrator/feedback/

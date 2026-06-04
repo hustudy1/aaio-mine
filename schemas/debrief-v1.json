@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openorchestrator-starter/schemas/debrief-v1.json",
+  "title": "A2A Debrief v1",
+  "description": "session 종료 시 본인 fork 안 state/debrief/ 에 저장. 사용자 OO 본체로 직접 안 감 — 환류 trigger 발생 시 feedback 에 evidence 첨부.",
+  "type": "object",
+  "required": ["schema_version", "session_id", "from", "ts", "summary", "peer_interactions"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "session_id": {"type": "string"},
+    "from": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"},
+    "summary": {"type": "string", "description": "사람말 1 단락 요약"},
+    "peer_interactions": {
+      "type": "array",
+      "description": "본 세션에서 peer 와 주고받은 task 요약 배열",
+      "items": {
+        "type": "object",
+        "required": ["peer", "task_id", "direction", "outcome"],
+        "properties": {
+          "peer": {"type": "string"},
+          "task_id": {"type": "string"},
+          "direction": {"enum": ["sent", "received"]},
+          "outcome": {"enum": ["processed", "dispatched", "decision_pending", "rejected"]}
+        }
+      }
+    },
+    "tasks_processed": {"type": "integer", "minimum": 0},
+    "tasks_dispatched": {"type": "integer", "minimum": 0},
+    "incidents": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openorchestrator-starter/schemas/feedback-v1.json",
+  "title": "A2A Feedback (upstream to OO) v1",
+  "description": "후배 fork 가 사용자 OO 본체로 보내는 환류 3 종 enum. 일상 debrief / 통계 / knowledge 는 안 감.",
+  "type": "object",
+  "required": ["schema_version", "feedback_id", "type", "intent", "from", "ts", "body"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "feedback_id": {"type": "string"},
+    "type": {"enum": ["protocol_proposal", "incident", "decision_request"]},
+    "intent": {"type": "string", "minLength": 1, "description": "사람말 1~2줄 한국어"},
+    "from": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"},
+    "body": {
+      "oneOf": [
+        {
+          "title": "protocol_proposal body",
+          "type": "object",
+          "required": ["current_schema_version", "affected_fields", "use_case", "proposed_change"],
+          "properties": {
+            "current_schema_version": {"type": "string"},
+            "affected_fields": {"type": "array", "items": {"type": "string"}},
+            "use_case": {"type": "string"},
+            "proposed_change": {"type": "string"}
+          }
+        },
+        {
+          "title": "incident body",
+          "type": "object",
+          "required": ["occurred_at", "component", "failure_mode", "repro_fixture"],
+          "properties": {
+            "occurred_at": {"type": "string", "format": "date-time"},
+            "component": {"type": "string"},
+            "failure_mode": {"type": "string"},
+            "repro_fixture": {"type": "string"}
+          }
+        },
+        {
+          "title": "decision_request body",
+          "type": "object",
+          "required": ["question", "options", "waiting_on_task_id"],
+          "properties": {
+            "question": {"type": "string"},
+            "options": {"type": "array", "items": {"type": "string"}},
+            "waiting_on_task_id": {"type": "string"},
+            "deadline": {"type": ["string", "null"], "format": "date-time"}
+          }
+        }
+      ]
+    }
+  }
+}
