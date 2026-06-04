@@ -1,0 +1,77 @@
+# LLM Wiki Sandbox Policy SSOT
+# starter repo 의 llm-wiki/ 폴더 내부 동작만 통제.
+# ecosystem-wide LLM Wiki 와 분리 — OO 본체 거버넌스 결합 없음.
+
+schema_version: "0.1-sandbox"
+schema_hash: "auto-generated-on-first-load"
+
+scope:
+  allowed_read:
+    - "llm-wiki/raw/**"
+    - "llm-wiki/synthesized/**"
+    - "llm-wiki/meta/**"
+    - "llm-wiki/policy.yaml"
+  allowed_write:
+    - "llm-wiki/synthesized/**"
+    - "llm-wiki/meta/hot.md"
+    - "llm-wiki/meta/changelog.md"
+    - "llm-wiki/meta/quarantine/**"
+  forbidden:
+    - "llm-wiki/raw/**"
+    - "shared_data/**"
+    - "schemas/**"
+    - ".claude/**"
+    - "docs/**"
+    - "templates/**"
+    - "CLAUDE.md"
+    - "README.md"
+    - "AGENTS.md"
+    - "master-wbs.md"
+    - "session-state.md"
+
+trigger:
+  mode: "explicit_user_only"
+  keywords_korean:
+    - "wiki 합성"
+    - "wiki 정리"
+    - "llm-wiki update"
+    - "raw 자료 wiki 화"
+    - "Karpathy wiki"
+  cron: null
+  watcher: null
+  commit_hook: null
+
+write_authority:
+  agent: "single_session_one_at_a_time"
+  conflict_resolution: "session 시작 시 llm-wiki/meta/.lock 파일 검사. 존재 시 즉시 종료, 사용자에게 다른 세션 알림."
+
+redaction:
+  pii_patterns:
+    email: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    phone_korea: '\d{2,3}-\d{3,4}-\d{4}'
+    rrn: '\d{6}-\d{7}'
+  on_pii_detect: "warn_user_and_quarantine"
+  quarantine_dir: "llm-wiki/meta/quarantine/"
+
+page_schema:
+  ref: "../schemas/llm-wiki-page-v1.json"
+  required_frontmatter:
+    - title
+    - type
+    - sources
+    - cross_links
+    - confidence
+    - last_synthesized_at
+    - agent
+
+dual_cli:
+  claude:
+    entry: ".claude/skills/llm-wiki-sandbox/SKILL.md"
+  codex:
+    entry: "AGENTS.md (LLM Wiki section)"
+  schema_version_check: "fail_closed"
+
+ecosystem_separation:
+  ai_pkm_watcher: false
+  oo_governance_inherit: false
+  starter_external_distribution_includes_llm_wiki: true

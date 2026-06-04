@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openorchestrator-starter/schemas/llm-wiki-page-v1.json",
+  "title": "LLM Wiki Page Frontmatter v1",
+  "description": "starter 의 llm-wiki/synthesized/ 안 모든 페이지의 frontmatter 검증 schema. sources 필수 — hallucinated synthesis 차단.",
+  "type": "object",
+  "required": ["title", "type", "sources", "cross_links", "confidence", "last_synthesized_at", "agent", "schema_version"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "페이지 제목, 사람 읽는 한국어 또는 영어"
+    },
+    "type": {
+      "enum": ["concept", "entity", "topic", "timeline"],
+      "description": "synthesized/ 의 4 폴더 중 어디에 속하는지"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "description": "페이지의 모든 claim 이 어느 source 에서 왔는지. 빈 배열 금지 — hallucinated synthesis 차단.",
+      "items": {
+        "type": "object",
+        "required": ["path", "ts"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "raw 자료 또는 다른 synthesized 페이지의 상대 경로"
+          },
+          "ts": {
+            "type": "string",
+            "format": "date-time",
+            "description": "source 가 참조된 시점"
+          },
+          "claim": {
+            "type": "string",
+            "description": "이 source 가 페이지의 어떤 주장을 뒷받침하는지"
+          }
+        }
+      }
+    },
+    "cross_links": {
+      "type": "array",
+      "description": "synthesized/ 안 다른 페이지의 상대 경로 (자동 cross-link)",
+      "items": {"type": "string"}
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Agent 의 합성 신뢰도"
+    },
+    "last_synthesized_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "agent": {
+      "enum": ["claude-code", "codex-cli", "cursor", "kiro", "copilot"],
+      "description": "본 페이지를 마지막에 갱신한 Agent"
+    },
+    "schema_version": {
+      "const": "1.0"
+    }
+  }
+}

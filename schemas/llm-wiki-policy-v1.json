@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openorchestrator-starter/schemas/llm-wiki-policy-v1.json",
+  "title": "LLM Wiki Policy v1",
+  "description": "starter 의 llm-wiki/policy.yaml 검증 schema. dual-CLI (Claude · Codex) 가 같은 policy 를 따르도록 강제.",
+  "type": "object",
+  "required": ["schema_version", "scope", "trigger", "write_authority", "redaction", "page_schema", "dual_cli", "ecosystem_separation"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "정책 schema 버전"
+    },
+    "schema_hash": {
+      "type": "string",
+      "description": "정책 본문 hash, dual-CLI 양쪽이 같은 정책 사용 확인용"
+    },
+    "scope": {
+      "type": "object",
+      "required": ["allowed_read", "allowed_write", "forbidden"],
+      "properties": {
+        "allowed_read": {"type": "array", "items": {"type": "string"}},
+        "allowed_write": {"type": "array", "items": {"type": "string"}},
+        "forbidden": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {"enum": ["explicit_user_only", "cron", "watcher", "commit_hook"]},
+        "keywords_korean": {"type": "array", "items": {"type": "string"}},
+        "cron": {"type": ["string", "null"]},
+        "watcher": {"type": ["string", "null"]},
+        "commit_hook": {"type": ["string", "null"]}
+      }
+    },
+    "write_authority": {
+      "type": "object",
+      "required": ["agent", "conflict_resolution"],
+      "properties": {
+        "agent": {"enum": ["single_session_one_at_a_time", "multi_session_pr_based", "lock_file"]},
+        "conflict_resolution": {"type": "string"}
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "required": ["pii_patterns", "on_pii_detect", "quarantine_dir"],
+      "properties": {
+        "pii_patterns": {"type": "object"},
+        "on_pii_detect": {"enum": ["warn_user_and_quarantine", "block", "redact_silent"]},
+        "quarantine_dir": {"type": "string"}
+      }
+    },
+    "page_schema": {
+      "type": "object",
+      "required": ["ref", "required_frontmatter"],
+      "properties": {
+        "ref": {"type": "string"},
+        "required_frontmatter": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "dual_cli": {
+      "type": "object",
+      "required": ["claude", "codex", "schema_version_check"],
+      "properties": {
+        "claude": {"type": "object"},
+        "codex": {"type": "object"},
+        "schema_version_check": {"enum": ["fail_closed", "warn", "ignore"]}
+      }
+    },
+    "ecosystem_separation": {
+      "type": "object",
+      "required": ["ai_pkm_watcher", "oo_governance_inherit", "starter_external_distribution_includes_llm_wiki"],
+      "properties": {
+        "ai_pkm_watcher": {"type": "boolean"},
+        "oo_governance_inherit": {"type": "boolean"},
+        "starter_external_distribution_includes_llm_wiki": {"type": "boolean"}
+      }
+    }
+  }
+}
