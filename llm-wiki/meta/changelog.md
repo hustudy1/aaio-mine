@@ -8,4 +8,8 @@ provenance 확보 목적 — 합성된 wiki 페이지의 어떤 claim 이 어느
 
 | ts | agent | action | target_page | source_ref | confidence |
 |---|---|---|---|---|---|
-| (초기 상태, entry 0) | | | | | |
+| 2026-06-05T00:00:00+09:00 | claude-code | create | concepts/llm-wiki-pattern.md | raw/llm-wiki-decision-202606.md | 0.95 |
+| 2026-06-05T00:00:00+09:00 | claude-code | create | entities/karpathy.md | raw/llm-wiki-decision-202606.md | 0.90 |
+| 2026-06-05T00:00:00+09:00 | claude-code | create | topics/sandbox-vs-ecosystem-wide.md | raw/llm-wiki-decision-202606.md | 0.92 |
+| 2026-06-05T00:00:00+09:00 | claude-code | create | timelines/2026-06-sandbox-bootstrap.md | raw/llm-wiki-decision-202606.md | 0.88 |
+| 2026-06-05T00:00:00+09:00 | claude-code | update_meta | meta/hot.md | (auto) | 1.00 |
