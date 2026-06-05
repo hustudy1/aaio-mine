@@ -1,9 +1,14 @@
 # OO Starter — .gitignore
 
 # 로컬 런타임 큐 (Agent 간 파일 교환, 동기화 불필요)
-shared_data/inbox/
-shared_data/outbox/
-shared_data/archive/
+# 디렉토리 내용만 ignore — 디렉토리 자체는 추적 (clone 직후 폴더 존재 보장)
+shared_data/inbox/*
+shared_data/outbox/*
+shared_data/archive/*
+# .gitkeep 은 재포함 (parent 디렉토리는 위에서 contents-only ignore 했으므로 negation 정상 동작)
+!shared_data/inbox/.gitkeep
+!shared_data/outbox/.gitkeep
+!shared_data/archive/.gitkeep
 
 # Python 환경
 .venv/

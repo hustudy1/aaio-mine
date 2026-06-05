@@ -20,9 +20,9 @@ peers:
     github_repo: github.com/<peer-B-handle>/openorchestrator-starter-fork
     schema_version: "1.0"
 
-  - name: openorchestrator-upstream
+  - name: <upstream-peer-name>
     role: upstream
     direction: feedback-only
-    github_repo: github.com/edolramba/OpenOrchestrator
+    github_repo: github.com/<upstream-handle>/<upstream-repo>
     schema_version: "1.0"
-    feedback_inbox_path: shared_data/inbox/openorchestrator/feedback/
+    feedback_inbox_path: shared_data/inbox/<upstream-name>/feedback/
