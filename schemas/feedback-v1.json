@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openorchestrator-starter/schemas/feedback-v1.json",
+  "$id": "https://aaio-mine/schemas/feedback-v1.json",
   "title": "A2A Feedback (upstream to OO) v1",
   "description": "후배 fork 가 사용자 OO 본체로 보내는 환류 3 종 enum. 일상 debrief / 통계 / knowledge 는 안 감.",
   "type": "object",

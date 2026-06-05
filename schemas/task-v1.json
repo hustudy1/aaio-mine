@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openorchestrator-starter/schemas/task-v1.json",
+  "$id": "https://aaio-mine/schemas/task-v1.json",
   "title": "A2A Task v1",
   "description": "peer 간 task JSON 전달 schema. file-first transport (GitHub PR cross-create) 정합.",
   "type": "object",

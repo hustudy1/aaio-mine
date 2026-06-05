@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openorchestrator-starter/schemas/llm-wiki-policy-v1.json",
+  "$id": "https://aaio-mine/schemas/llm-wiki-policy-v1.json",
   "title": "LLM Wiki Policy v1",
   "description": "starter 의 llm-wiki/policy.yaml 검증 schema. dual-CLI (Claude · Codex) 가 같은 policy 를 따르도록 강제.",
   "type": "object",

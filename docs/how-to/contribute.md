@@ -7,7 +7,7 @@
 GitHub 에서 starter repo 를 본인 계정으로 fork. clone 후 본인 PC 에 둡니다.
 
 ```
-git clone github.com/<your-handle>/openorchestrator-starter-fork
+git clone github.com/<your-handle>/aaio-mine-fork
 ```
 
 ## 2. peers.yaml 작성

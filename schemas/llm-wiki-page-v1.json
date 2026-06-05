@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openorchestrator-starter/schemas/llm-wiki-page-v1.json",
+  "$id": "https://aaio-mine/schemas/llm-wiki-page-v1.json",
   "title": "LLM Wiki Page Frontmatter v1",
   "description": "starter 의 llm-wiki/synthesized/ 안 모든 페이지의 frontmatter 검증 schema. sources 필수 — hallucinated synthesis 차단.",
   "type": "object",

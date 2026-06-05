@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openorchestrator-starter/schemas/debrief-v1.json",
+  "$id": "https://aaio-mine/schemas/debrief-v1.json",
   "title": "A2A Debrief v1",
   "description": "session 종료 시 본인 fork 안 state/debrief/ 에 저장. 사용자 OO 본체로 직접 안 감 — 환류 trigger 발생 시 feedback 에 evidence 첨부.",
   "type": "object",

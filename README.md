@@ -36,7 +36,7 @@ It is a **personal coordination layer (L2)** sitting between you and your AI ass
 ### 1. Clone
 
 ```bash
-git clone https://github.com/{{your-org}}/openorchestrator-starter.git my-oo
+git clone https://github.com/{{your-org}}/aaio-mine.git my-oo
 cd my-oo
 ```
 

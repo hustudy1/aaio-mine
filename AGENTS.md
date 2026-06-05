@@ -4,7 +4,7 @@ starter 의 Codex CLI 진입 문서. 사용자가 자연어 발화로 작업 tri
 
 ## Identity
 
-openorchestrator-starter — OpenOrchestrator 의 wrap product (외부 배포용 키트). 두 트랙 공존:
+aaio-mine — OpenOrchestrator 의 wrap product (외부 배포용 키트, agentic AIOps mine). 두 트랙 공존:
 - A2A 트랙: `shared_data/` (후배 협업 task JSON 통신)
 - LLM Wiki Sandbox 트랙: `llm-wiki/` (Karpathy 패턴 검증)
 

@@ -5,19 +5,19 @@
 peers:
   - name: self
     role: self
-    github_repo: github.com/<your-handle>/openorchestrator-starter-fork
+    github_repo: github.com/<your-handle>/aaio-mine-fork
     schema_version: "1.0"
 
   - name: peer-A
     role: peer
     direction: bidirectional
-    github_repo: github.com/<peer-A-handle>/openorchestrator-starter-fork
+    github_repo: github.com/<peer-A-handle>/aaio-mine-fork
     schema_version: "1.0"
 
   - name: peer-B
     role: peer
     direction: bidirectional
-    github_repo: github.com/<peer-B-handle>/openorchestrator-starter-fork
+    github_repo: github.com/<peer-B-handle>/aaio-mine-fork
     schema_version: "1.0"
 
   - name: <upstream-peer-name>
