@@ -42,3 +42,9 @@ token.json
 *_token.json
 *.pem
 *.key
+
+# 팀 외부 SaaS 협업 view (옵션 layer — 노션 등)
+# 실 워크스페이스 URL 은 외부 검색 노출 ↓ 위해 gitignored
+config/peers.yaml
+config/notion.yaml
+# .example 은 placeholder 만, 추적 OK

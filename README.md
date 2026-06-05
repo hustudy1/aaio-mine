@@ -26,6 +26,7 @@ This is the **MVP / Starter** edition — minimal moving parts, file-first, no i
 - ❌ A team project management tool (Linear / Jira / Asana cover that)
 - ❌ A knowledge base (Notion / Obsidian cover that)
 - ❌ Tied to any specific AI vendor (works with Claude Code, Codex CLI, Cursor, Copilot, Kiro)
+- ❌ A replacement for Notion / Confluence / wikis when peers collaborate — instead, an optional **view-only** Notion layer is supported as a separate track. See [docs/explanation/notion-collab-layer.md](docs/explanation/notion-collab-layer.md). Source-of-truth stays in git/file; Notion is only a human-readable view (meeting notes, calendar, Kanban, citations). Four hard constraints (no company data, no personal asset lineage, no SSOT body, no Tier 1 backend info) are enforced.
 
 It is a **personal coordination layer (L2)** sitting between you and your AI assistant.
 
