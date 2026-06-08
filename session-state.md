@@ -1,4 +1,4 @@
-# SESSION_STATE — {{이름}} OO
+# SESSION_STATE — 김민후
 > 대화창이 아니라 "문서"로 세션을 재개하기 위한 Resume Pack.
 > 새 AI 대화를 열 때 이 파일을 첨부하거나 내용을 붙여넣는다.
 
