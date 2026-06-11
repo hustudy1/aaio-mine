@@ -6,17 +6,17 @@
 
 ## 0) Meta
 
-- last_updated: {{YYYY-MM-DD}}
-- active_task: {{현재 진행 중인 태스크 ID 또는 "없음"}}
-- next_action: {{다음에 해야 할 일 1문장}}
+- last_updated: 2026-06-11
+- active_task: 없음 (T-004 완료, PR #1 팀 리뷰 대기)
+- next_action: PR #1 리뷰 결과 확인 후 main 병합 / 후속(RCAEval 270건 확장·Scene4 C6)은 별도 태스크로
 
 ---
 
 ## 1) 오늘 한 일 (Today Snapshot)
 
-- done_today: {{완료한 내용}}
-- blockers: {{막힌 항목 또는 "없음"}}
-- decisions: {{결정한 사항 또는 "없음"}}
+- done_today: T-004 — RCA 플랫폼 로컬(k3d) 구축, 자동 파이프라인 1→7 검증, LLM CLI 게이트웨이 전환, 수정검증 100%→0%, 대시보드 정직성, kustomize 재현성, 벤치마크 채점, 기존 인프라 충돌 회피. PR #1 제출.
+- blockers: 없음
+- decisions: (1) AWS Bedrock 대신 호스트 Claude CLI 게이트웨이 사용 (2) 팀 repo라 main 직접 push 대신 피처 브랜치+PR (3) remediation은 시뮬레이션 리셋형으로 우선 (Phase C5 full은 별도)
 
 ---
 
@@ -24,17 +24,17 @@
 
 > AI에게 전달할 핵심 배경. 간결하게 유지한다.
 
-- **진행 중 태스크**: {{T-ID}} — {{태스크 제목}}
-- **완료 기준**: {{언제 이 태스크가 끝나는가}}
-- **수정 중인 파일/문서**: 없음
+- **진행 중 태스크**: 없음 (T-004 완료)
+- **완료 기준**: T-004는 PR #1 제출로 완료. main 병합은 팀 리뷰 소관.
+- **수정 중인 파일/문서**: 없음 (결과물은 agenticaiops-rca-platform repo + explaination/rca-platform/)
 
 ---
 
 ## 3) 최근 완료 (최근 3건)
 
-- {{YYYY-MM-DD}}: {{완료한 일 1줄}}
-- {{YYYY-MM-DD}}: {{완료한 일 1줄}}
-- {{YYYY-MM-DD}}: {{완료한 일 1줄}}
+- 2026-06-11: T-004 RCA 플랫폼 로컬 구축·재현성·벤치마크 채점 → PR #1
+- -
+- -
 
 ---
 
